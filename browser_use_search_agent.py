@@ -3,6 +3,7 @@ import json
 import re
 from browser_use import Agent as BrowserAgentExecutor
 from langchain_openai import ChatOpenAI
+from dotenv import load_dotenv
 
 class PlanningAgent:
     def __init__(self, llm):
@@ -195,8 +196,15 @@ class PlanningAgent:
 
 async def main():
     # Initialize two different LLM models
-    planning_llm = ChatOpenAI(model="gpt-4o")  # More capable model for planning and validation
-    browser_llm = ChatOpenAI(model="gpt-4o")  # Faster model for browser interactions
+    planning_llm = ChatOpenAI(
+        model="deepseek-reasoner",  # Use DeepSeek-R1 for planning and validation
+        base_url="https://api.deepseek.com",
+        api_key=os.getenv("DEEPSEEK_API_KEY")  # Retrieve API key from environment variable
+    )
+    browser_llm = ChatOpenAI(
+        model="gpt-4o",  # Faster model for browser interactions
+        api_key=os.getenv("AZURE_OPENAI_API_KEY")  # 使用 Azure OpenAI 的 API 密钥
+    )
     
     planning_agent = PlanningAgent(planning_llm)
     
@@ -238,4 +246,5 @@ async def main():
     print(overall_report)
 
 if __name__ == "__main__":
+    load_dotenv()
     asyncio.run(main())
