@@ -194,14 +194,17 @@ class PlanningAgent:
         )
 
 async def main():
-    llm = ChatOpenAI(model="gpt-4o")  # Select an appropriate model.
-    planning_agent = PlanningAgent(llm)
+    # Initialize two different LLM models
+    planning_llm = ChatOpenAI(model="gpt-4o")  # More capable model for planning and validation
+    browser_llm = ChatOpenAI(model="gpt-4o")  # Faster model for browser interactions
+    
+    planning_agent = PlanningAgent(planning_llm)
     
     current_command = (
         "Open the browser and search for: 'Animals mentioned in Ilias Lagkouvardos and Olga Tapia papers on the alvei species that also appear in the 2021 Wikipedia article about a multicenter, randomized, double-blind study.'"
     )
     overall_report = f"Initial Command: {current_command}\n"
-    max_time = 300  # 设置最大执行时间为300秒（5分钟）
+    max_time = 300
     start_time = asyncio.get_event_loop().time()
     
     step = 1
@@ -209,7 +212,8 @@ async def main():
         print(f"\n--- Step {step} ---")
         print(f"Browser Command: {current_command}")
         
-        browser_agent = BrowserAgentExecutor(task=current_command, llm=llm)
+        # Use browser_llm for BrowserAgentExecutor
+        browser_agent = BrowserAgentExecutor(task=current_command, llm=browser_llm)
         browser_result = await browser_agent.run()
         print(f"Browser Result:\n{browser_result}\n")
         
